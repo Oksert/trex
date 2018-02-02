@@ -504,7 +504,7 @@
 
                 // Check for collisions.
                 var collision = hasObstacles &&
-                    checkForCollision(this.horizon.obstacles[0], this.tRex, this.canvasCtx);
+                    checkForCollision(this.horizon.obstacles[0], this.tRex);
 
                 if (!collision) {
                     this.distanceRan += this.currentSpeed * deltaTime / this.msPerFrame;
