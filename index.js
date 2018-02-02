@@ -167,7 +167,7 @@
             PTERODACTYL: { x: 134, y: 2 },
             RESTART: { x: 2, y: 2 },
             TEXT_SPRITE: { x: 655, y: 2 },
-            TREX: { x: 280, y: 15 },
+            TREX: { x: 0, y: 13 },
             STAR: { x: 645, y: 2 }
         },
         HDPI: {
@@ -291,6 +291,7 @@
                 this.spriteDef = Runner.spriteDefinition.HDPI;
             } else {
                 Runner.imageSprite = document.getElementById('offline-resources-2x');
+                Runner.imageSprite2 = document.getElementById('land');
                 this.spriteDef = Runner.spriteDefinition.LDPI;
             }
 
@@ -368,8 +369,8 @@
             Runner.updateCanvasScaling(this.canvas);
 
             // Horizon contains clouds, obstacles and the ground.
-            // this.horizon = new Horizon(this.canvas, this.spriteDef, this.dimensions,
-            //     this.config.GAP_COEFFICIENT);
+            this.horizon = new Horizon(this.canvas, this.spriteDef, this.dimensions,
+                this.config.GAP_COEFFICIENT);
 
             // // Distance meter
             // this.distanceMeter = new DistanceMeter(this.canvas,
@@ -538,27 +539,27 @@
                 }
 
                 // The horizon doesn't move until the intro is over.
-                // if (this.playingIntro) {
-                //     this.horizon.update(0, this.currentSpeed, hasObstacles);
-                // } else {
-                //     deltaTime = !this.activated ? 0 : deltaTime;
-                //     this.horizon.update(deltaTime, this.currentSpeed, hasObstacles,
-                //         this.inverted);
-                // }
+                if (this.playingIntro) {
+                    this.horizon.update(0, this.currentSpeed, hasObstacles);
+                } else {
+                    deltaTime = !this.activated ? 0 : deltaTime;
+                    this.horizon.update(deltaTime, this.currentSpeed, hasObstacles,
+                        this.inverted);
+                }
 
                 // Check for collisions.
-                var collision = hasObstacles &&
-                    checkForCollision(this.horizon.obstacles[0], this.tRex);
+                // var collision = hasObstacles &&
+                //     checkForCollision(this.horizon.obstacles[0], this.tRex);
 
-                if (!collision) {
-                    this.distanceRan += this.currentSpeed * deltaTime / this.msPerFrame;
+                // if (!collision) {
+                //     this.distanceRan += this.currentSpeed * deltaTime / this.msPerFrame;
 
-                    if (this.currentSpeed < this.config.MAX_SPEED) {
-                        this.currentSpeed += this.config.ACCELERATION;
-                    }
-                } else {
-                    this.gameOver();
-                }
+                //     if (this.currentSpeed < this.config.MAX_SPEED) {
+                //         this.currentSpeed += this.config.ACCELERATION;
+                //     }
+                // } else {
+                //     this.gameOver();
+                // }
 
                 // var playAchievementSound = this.distanceMeter.update(deltaTime,
                 //     Math.ceil(this.distanceRan));
@@ -1341,11 +1342,11 @@
                     sourceX += sourceWidth * this.currentFrame;
                 }
 
-                this.canvasCtx.drawImage(Runner.imageSprite,
-                    sourceX, this.spritePos.y,
-                    sourceWidth * this.size, sourceHeight,
-                    this.xPos, this.yPos,
-                    this.typeConfig.width * this.size, this.typeConfig.height);
+                // this.canvasCtx.drawImage(Runner.imageSprite,
+                //     sourceX, this.spritePos.y,
+                //     sourceWidth * this.size, sourceHeight,
+                //     this.xPos, this.yPos,
+                //     this.typeConfig.width * this.size, this.typeConfig.height);
             },
 
             /**
@@ -1486,8 +1487,8 @@
         this.canvas = canvas;
         this.canvasCtx = canvas.getContext('2d');
         this.spritePos = spritePos;
-        this.xPos = 0;
-        this.yPos = 0;
+        this.xPos = 20;
+        this.yPos = 20;
         // Position when on the ground.
         this.groundYPos = 0;
         this.currentFrame = 0;
@@ -1518,7 +1519,7 @@
      * @enum {number}
      */
     Trex.config = {
-        DROP_VELOCITY: -5,
+        DROP_VELOCITY: -10,
         GRAVITY: 0.6,
         HEIGHT: 93,
         HEIGHT_DUCK: 25,
@@ -1528,9 +1529,9 @@
         MIN_JUMP_HEIGHT: 30,
         SPEED_DROP_COEFFICIENT: 3,
         SPRITE_WIDTH: 262,
-        START_X_POS: 280,
-        WIDTH: 90,
-        WIDTH_DUCK: 59
+        START_X_POS: 0,
+        WIDTH: 105,
+        WIDTH_DUCK: 105
     };
 
 
@@ -1578,23 +1579,23 @@
      */
     Trex.animFrames = {
         WAITING: {
-            frames: [44, 0],
+            frames: [0,105],
             msPerFrame: 1000 / 3
         },
         RUNNING: {
-            frames: [280,320, 280, 206],
-            msPerFrame: 1000 / 12
+            frames: [0, 105, 210],
+            msPerFrame: 1000 / 5
         },
         CRASHED: {
             frames: [220],
             msPerFrame: 1000 / 60
         },
         JUMPING: {
-            frames: [0],
+            frames: [420],
             msPerFrame: 1000 / 60
         },
         DUCKING: {
-            frames: [262, 321],
+            frames: [315],
             msPerFrame: 1000 / 8
         }
     };
@@ -1652,7 +1653,7 @@
             }
 
             if (this.status == Trex.status.WAITING) {
-                this.blink(getTimeStamp());
+                // this.blink(getTimeStamp());
             } else {
                 this.draw(this.currentAnimFrames[this.currentFrame], 0);
             }
@@ -1698,7 +1699,7 @@
             if (this.ducking && this.status != Trex.status.CRASHED) {
                 this.canvasCtx.drawImage(Runner.imageSprite, sourceX, sourceY,
                     sourceWidth, sourceHeight,
-                    this.xPos, this.yPos,
+                    this.xPos, this.yPos - 24,
                     this.config.WIDTH_DUCK, this.config.HEIGHT);
             } else {
                 // Crashed whilst ducking. Trex is standing up so needs adjustment.
@@ -1708,7 +1709,7 @@
                 // Standing / running
                 this.canvasCtx.drawImage(Runner.imageSprite, sourceX, sourceY,
                     sourceWidth, sourceHeight,
-                    this.xPos, this.yPos,
+                    this.xPos, this.yPos - 27,
                     this.config.WIDTH, this.config.HEIGHT);
             }
         },
@@ -1725,18 +1726,18 @@
          * @param {number} time Current time in milliseconds.
          */
         blink: function (time) {
-            var deltaTime = time - this.animStartTime;
+            // var deltaTime = time - this.animStartTime;
 
-            if (deltaTime >= this.blinkDelay) {
-                this.draw(this.currentAnimFrames[this.currentFrame], 0);
+            // if (deltaTime >= this.blinkDelay) {
+            //     this.draw(this.currentAnimFrames[this.currentFrame], 0);
 
-                if (this.currentFrame == 1) {
-                    // Set new random delay to blink.
-                    this.setBlinkDelay();
-                    this.animStartTime = time;
-                    this.blinkCount++;
-                }
-            }
+            //     if (this.currentFrame == 1) {
+            //         // Set new random delay to blink.
+            //         this.setBlinkDelay();
+            //         this.animStartTime = time;
+            //         this.blinkCount++;
+            //     }
+            // }
         },
 
         /**
@@ -1980,11 +1981,11 @@
                 this.canvasCtx.translate(this.x, this.y);
             }
 
-            this.canvasCtx.drawImage(this.image, sourceX, sourceY,
-                sourceWidth, sourceHeight,
-                targetX, targetY,
-                targetWidth, targetHeight
-            );
+            // this.canvasCtx.drawImage(this.image, sourceX, sourceY,
+            //     sourceWidth, sourceHeight,
+            //     targetX, targetY,
+            //     targetWidth, targetHeight
+            // );
 
             this.canvasCtx.restore();
         },
@@ -2129,12 +2130,12 @@
      * @enum {number}
      */
     Cloud.config = {
-        HEIGHT: 14,
+        HEIGHT: 38,
         MAX_CLOUD_GAP: 400,
         MAX_SKY_LEVEL: 30,
         MIN_CLOUD_GAP: 100,
         MIN_SKY_LEVEL: 71,
-        WIDTH: 46
+        WIDTH: 80
     };
 
 
@@ -2161,13 +2162,13 @@
                 sourceHeight = sourceHeight * 2;
             }
 
-            this.canvasCtx.drawImage(Runner.imageSprite, this.spritePos.x,
-                this.spritePos.y,
-                sourceWidth, sourceHeight,
-                this.xPos, this.yPos,
-                Cloud.config.WIDTH, Cloud.config.HEIGHT);
+            // this.canvasCtx.drawImage(Runner.imageSprite2, 1201,
+            //     3,
+            //     80, 38,
+            //     this.xPos, this.yPos,
+            //     Cloud.config.WIDTH, Cloud.config.HEIGHT);
 
-            this.canvasCtx.restore();
+            // this.canvasCtx.restore();
         },
 
         /**
@@ -2304,23 +2305,23 @@
             this.canvasCtx.globalAlpha = this.opacity;
 
             // Stars.
-            if (this.drawStars) {
-                for (var i = 0; i < NightMode.config.NUM_STARS; i++) {
-                    this.canvasCtx.drawImage(Runner.imageSprite,
-                        starSourceX, this.stars[i].sourceY, starSize, starSize,
-                        Math.round(this.stars[i].x), this.stars[i].y,
-                        NightMode.config.STAR_SIZE, NightMode.config.STAR_SIZE);
-                }
-            }
+            // if (this.drawStars) {
+            //     for (var i = 0; i < NightMode.config.NUM_STARS; i++) {
+            //         this.canvasCtx.drawImage(Runner.imageSprite,
+            //             starSourceX, this.stars[i].sourceY, starSize, starSize,
+            //             Math.round(this.stars[i].x), this.stars[i].y,
+            //             NightMode.config.STAR_SIZE, NightMode.config.STAR_SIZE);
+            //     }
+            // }
 
             // Moon.
-            this.canvasCtx.drawImage(Runner.imageSprite, moonSourceX,
-                this.spritePos.y, moonSourceWidth, moonSourceHeight,
-                Math.round(this.xPos), this.yPos,
-                moonOutputWidth, NightMode.config.HEIGHT);
+            // this.canvasCtx.drawImage(Runner.imageSprite, moonSourceX,
+            //     this.spritePos.y, moonSourceWidth, moonSourceHeight,
+            //     Math.round(this.xPos), this.yPos,
+            //     moonOutputWidth, NightMode.config.HEIGHT);
 
-            this.canvasCtx.globalAlpha = 1;
-            this.canvasCtx.restore();
+            // this.canvasCtx.globalAlpha = 1;
+            // this.canvasCtx.restore();
         },
 
         // Do star placement.
@@ -2384,7 +2385,7 @@
      */
     HorizonLine.dimensions = {
         WIDTH: 600,
-        HEIGHT: 12,
+        HEIGHT: 120,
         YPOS: 127
     };
 
@@ -2423,16 +2424,16 @@
          * Draw the horizon line.
          */
         draw: function () {
-            this.canvasCtx.drawImage(Runner.imageSprite, this.sourceXPos[0],
-                this.spritePos.y,
-                this.sourceDimensions.WIDTH, this.sourceDimensions.HEIGHT,
-                this.xPos[0], this.yPos,
+            this.canvasCtx.drawImage(Runner.imageSprite2, 53,
+                82,
+                50, this.dimensions.HEIGHT,
+                this.xPos[0], this.yPos - 20,
                 this.dimensions.WIDTH, this.dimensions.HEIGHT);
 
-            this.canvasCtx.drawImage(Runner.imageSprite, this.sourceXPos[1],
-                this.spritePos.y,
-                this.sourceDimensions.WIDTH, this.sourceDimensions.HEIGHT,
-                this.xPos[1], this.yPos,
+            this.canvasCtx.drawImage(Runner.imageSprite2,53,
+                82,
+                50, this.dimensions.HEIGHT,
+                this.xPos[1], this.yPos - 20,
                 this.dimensions.WIDTH, this.dimensions.HEIGHT);
         },
 
@@ -2520,10 +2521,10 @@
      */
     Horizon.config = {
         BG_CLOUD_SPEED: 0.2,
-        BUMPY_THRESHOLD: .3,
+        BUMPY_THRESHOLD: 0,
         CLOUD_FREQUENCY: .5,
         HORIZON_HEIGHT: 16,
-        MAX_CLOUDS: 6
+        MAX_CLOUDS: 100
     };
 
 
@@ -2534,8 +2535,8 @@
         init: function () {
             this.addCloud();
             this.horizonLine = new HorizonLine(this.canvas, this.spritePos.HORIZON);
-            this.nightMode = new NightMode(this.canvas, this.spritePos.MOON,
-                this.dimensions.WIDTH);
+            // this.nightMode = new NightMode(this.canvas, this.spritePos.MOON,
+            //     this.dimensions.WIDTH);
         },
 
         /**
@@ -2549,12 +2550,12 @@
         update: function (deltaTime, currentSpeed, updateObstacles, showNightMode) {
             this.runningTime += deltaTime;
             this.horizonLine.update(deltaTime, currentSpeed);
-            this.nightMode.update(showNightMode);
-            this.updateClouds(deltaTime, currentSpeed);
+            // this.nightMode.update(showNightMode);
+            // this.updateClouds(deltaTime, currentSpeed);
 
-            if (updateObstacles) {
-                this.updateObstacles(deltaTime, currentSpeed);
-            }
+            // if (updateObstacles) {
+            //     this.updateObstacles(deltaTime, currentSpeed);
+            // }
         },
 
         /**
