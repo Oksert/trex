@@ -39,11 +39,11 @@ html, body {
 
 .offline .runner-container {
   height: 300px;
-  max-width: 600px;
+  max-width: 732px;
   overflow: hidden;
   position: absolute;
   top: 35px;
-  width: 44px;
+  width: 732px;
 }
 
 .offline .runner-canvas {

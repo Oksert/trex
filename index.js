@@ -1,7 +1,3 @@
-// Copyright (c) 2014 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-// extract from chromium source code by @liuwayong
 (function () {
     'use strict';
     /**
@@ -53,13 +49,6 @@
         this.resizeTimerId_ = null;
 
         this.playCount = 0;
-
-        // Sound FX.
-        this.audioBuffer = null;
-        this.soundFx = {};
-
-        // Global web audio context for playing sounds.
-        this.audioContext = null;
 
         // Images.
         this.images = {};
@@ -114,12 +103,11 @@
         INITIAL_JUMP_VELOCITY: 12,
         INVERT_FADE_DURATION: 12000,
         INVERT_DISTANCE: 700,
-        MAX_BLINK_COUNT: 3,
         MAX_CLOUDS: 6,
         MAX_OBSTACLE_LENGTH: 1,
         MAX_OBSTACLE_DUPLICATION: 1,
         MAX_SPEED: 13,
-        MIN_JUMP_HEIGHT: 35,
+        MIN_JUMP_HEIGHT: 15,
         MOBILE_SPEED_COEFFICIENT: 1.2,
         RESOURCE_TEMPLATE_ID: 'audio-resources',
         SPEED: 6,
@@ -133,7 +121,7 @@
      */
     Runner.defaultDimensions = {
         WIDTH: DEFAULT_WIDTH,
-        HEIGHT: 150
+        HEIGHT: 300
     };
 
 
@@ -161,13 +149,13 @@
         LDPI: {
             CACTUS_LARGE: { x: 130, y: 60 },
             CACTUS_SMALL: { x: 168, y: 47 },
-            CLOUD: { x: 86, y: 2 },
+            CLOUD: { x: 0, y: 0 },
             HORIZON: { x: 2, y: 54 },
             MOON: { x: 484, y: 2 },
             PTERODACTYL: { x: 168, y: 47 },
             RESTART: { x: 2, y: 2 },
             TEXT_SPRITE: { x: 655, y: 2 },
-            TREX: { x: 0, y: 13 },
+            TREX: { x: 0, y: 2 },
             STAR: { x: 645, y: 2 }
         },
         HDPI: {
@@ -184,16 +172,6 @@
         }
     };
 
-
-    /**
-     * Sound FX. Reference to the ID of the audio tag on interstitial page.
-     * @enum {string}
-     */
-    Runner.sounds = {
-        BUTTON_PRESS: 'offline-sound-press',
-        HIT: 'offline-sound-hit',
-        SCORE: 'offline-sound-reached'
-    };
 
 
     /**
@@ -302,30 +280,6 @@
                 // If the images are not yet loaded, add a listener.
                 Runner.movesSprite.addEventListener(Runner.events.LOAD,
                     this.init.bind(this));
-            }
-        },
-
-        /**
-         * Load and decode base 64 encoded sounds.
-         */
-        loadSounds: function () {
-            if (!IS_IOS) {
-                this.audioContext = new AudioContext();
-
-                var resourceTemplate =
-                    document.getElementById(this.config.RESOURCE_TEMPLATE_ID).content;
-
-                for (var sound in Runner.sounds) {
-                    var soundSrc =
-                        resourceTemplate.getElementById(Runner.sounds[sound]).src;
-                    soundSrc = soundSrc.substr(soundSrc.indexOf(',') + 1);
-                    var buffer = decodeBase64ToArrayBuffer(soundSrc);
-
-                    // Async, so no guarantee of order in array.
-                    this.audioContext.decodeAudioData(buffer, function (index, audioData) {
-                        this.soundFx[index] = audioData;
-                    }.bind(this, sound));
-                }
             }
         },
 
@@ -466,7 +420,7 @@
 
                 // CSS animation definition.
                 var keyframes = '@-webkit-keyframes intro { ' +
-                    'from { width:' + Trex.config.WIDTH + 'px }' +
+                    'from { width:' + this.dimensions.WIDTH + 'px }' +
                     'to { width: ' + this.dimensions.WIDTH + 'px }' +
                     '}';
                 document.styleSheets[0].insertRule(keyframes, 0);
@@ -565,18 +519,6 @@
                 // var playAchievementSound = this.distanceMeter.update(deltaTime,
                 //     Math.ceil(this.distanceRan));
 
-                // if (playAchievementSound) {
-                //     this.playSound(this.soundFx.SCORE);
-                // }
-
-                // Night mode.
-                if (this.invertTimer > this.config.INVERT_FADE_DURATION) {
-                    this.invertTimer = 0;
-                    this.invertTrigger = false;
-                    this.invert();
-                } else if (this.invertTimer) {
-                    this.invertTimer += deltaTime;
-                } else {
                     // var actualDistance =
                     //     this.distanceMeter.getActualDistance(Math.ceil(this.distanceRan));
 
@@ -589,11 +531,9 @@
                     //         this.invert();
                     //     }
                     // }
-                }
             }
 
-            if (this.playing || (!this.activated &&
-                this.tRex.blinkCount < Runner.config.MAX_BLINK_COUNT)) {
+            if (this.playing) {
                 this.tRex.update(deltaTime);
                 this.scheduleNextUpdate();
             }
@@ -670,7 +610,6 @@
                 if (!this.crashed && (Runner.keycodes.JUMP[e.keyCode] ||
                     e.type == Runner.events.TOUCHSTART)) {
                     if (!this.playing) {
-                        this.loadSounds();
                         this.playing = true;
                         this.update();
                         if (window.errorPageController) {
@@ -679,7 +618,6 @@
                     }
                     //  Play sound effect and jump on starting the game for the first time.
                     if (!this.tRex.jumping && !this.tRex.ducking) {
-                        this.playSound(this.soundFx.BUTTON_PRESS);
                         this.tRex.startJump(this.currentSpeed);
                     }
                 }
@@ -767,8 +705,6 @@
          * Game over state.
          */
         gameOver: function () {
-            this.playSound(this.soundFx.HIT);
-            vibrate(200);
 
             this.stop();
             this.crashed = true;
@@ -826,7 +762,6 @@
                 this.distanceMeter.reset(this.highestScore);
                 this.horizon.reset();
                 this.tRex.reset();
-                this.playSound(this.soundFx.BUTTON_PRESS);
                 this.invert(true);
                 this.update();
             }
@@ -842,19 +777,6 @@
             } else if (!this.crashed) {
                 this.tRex.reset();
                 this.play();
-            }
-        },
-
-        /**
-         * Play a sound.
-         * @param {SoundBuffer} soundBuffer
-         */
-        playSound: function (soundBuffer) {
-            if (soundBuffer) {
-                var sourceNode = this.audioContext.createBufferSource();
-                sourceNode.buffer = soundBuffer;
-                sourceNode.connect(this.audioContext.destination);
-                sourceNode.start(0);
             }
         },
 
@@ -933,17 +855,6 @@
 
 
     /**
-     * Vibrate on mobile devices.
-     * @param {number} duration Duration of the vibration in milliseconds.
-     */
-    function vibrate(duration) {
-        if (IS_MOBILE && window.navigator.vibrate) {
-            window.navigator.vibrate(duration);
-        }
-    }
-
-
-    /**
      * Create canvas element.
      * @param {HTMLElement} container Element to append canvas to.
      * @param {number} width
@@ -960,23 +871,6 @@
         container.appendChild(canvas);
 
         return canvas;
-    }
-
-
-    /**
-     * Decodes the base 64 audio to ArrayBuffer used by Web Audio.
-     * @param {string} base64String
-     */
-    function decodeBase64ToArrayBuffer(base64String) {
-        var len = (base64String.length / 4) * 3;
-        var str = atob(base64String);
-        var arrayBuffer = new ArrayBuffer(len);
-        var bytes = new Uint8Array(arrayBuffer);
-
-        for (var i = 0; i < len; i++) {
-            bytes[i] = str.charCodeAt(i);
-        }
-        return bytes.buffer;
     }
 
 
@@ -1430,7 +1324,7 @@
             type: 'CACTUS_SMALL',
             width: 17,
             height: 35,
-            yPos: 105,
+            yPos: 245,
             multipleSpeed: 4,
             minGap: 30,
             minSpeed: 0,
@@ -1444,7 +1338,7 @@
             type: 'CACTUS_LARGE',
             width: 40,
             height: 100,
-            yPos: 80,
+            yPos: 220,
             multipleSpeed: 7,
             minGap: 300,
             minSpeed: 0,
@@ -1461,7 +1355,7 @@
             type: 'PTERODACTYL',
             width: 46,
             height: 40,
-            yPos: [30, 100], // Variable height.
+            yPos: [170, 240], // Variable height.
             yPosMobile: [100, 50], // Variable height mobile.
             multipleSpeed: 999,
             minSpeed: 8.5,
@@ -1497,8 +1391,6 @@
         this.groundYPos = 0;
         this.currentFrame = 0;
         this.currentAnimFrames = [];
-        this.blinkDelay = 0;
-        this.blinkCount = 0;
         this.animStartTime = 0;
         this.timer = 0;
         this.msPerFrame = 1000 / FPS;
@@ -1525,7 +1417,7 @@
     Trex.config = {
         DROP_VELOCITY: -10,
         GRAVITY: 0.6,
-        HEIGHT: 93,
+        HEIGHT: 105,
         HEIGHT_DUCK: 25,
         INIITAL_JUMP_VELOCITY: -10,
         INTRO_DURATION: 1500,
@@ -1571,12 +1463,6 @@
         RUNNING: 'RUNNING',
         WAITING: 'WAITING'
     };
-
-    /**
-     * Blinking coefficient.
-     * @const
-     */
-    Trex.BLINK_TIMING = 7000;
 
 
     /**
@@ -1648,7 +1534,6 @@
 
                 if (opt_status == Trex.status.WAITING) {
                     this.animStartTime = getTimeStamp();
-                    this.setBlinkDelay();
                 }
             }
 
@@ -1658,11 +1543,7 @@
                     this.config.INTRO_DURATION) * deltaTime);
             }
 
-            if (this.status == Trex.status.WAITING) {
-                // this.blink(getTimeStamp());
-            } else {
-                this.draw(this.currentAnimFrames[this.currentFrame], 0);
-            }
+            this.draw(this.currentAnimFrames[this.currentFrame], 0);
 
             // Update the frame position.
             if (this.timer >= this.msPerFrame) {
@@ -1718,32 +1599,6 @@
                     this.xPos, this.yPos - 10,
                     this.config.WIDTH, this.config.HEIGHT);
             }
-        },
-
-        /**
-         * Sets a random time for the blink to happen.
-         */
-        setBlinkDelay: function () {
-            this.blinkDelay = Math.ceil(Math.random() * Trex.BLINK_TIMING);
-        },
-
-        /**
-         * Make t-rex blink at random intervals.
-         * @param {number} time Current time in milliseconds.
-         */
-        blink: function (time) {
-            // var deltaTime = time - this.animStartTime;
-
-            // if (deltaTime >= this.blinkDelay) {
-            //     this.draw(this.currentAnimFrames[this.currentFrame], 0);
-
-            //     if (this.currentFrame == 1) {
-            //         // Set new random delay to blink.
-            //         this.setBlinkDelay();
-            //         this.animStartTime = time;
-            //         this.blinkCount++;
-            //     }
-            // }
         },
 
         /**
@@ -2013,7 +1868,6 @@
          */
         update: function (deltaTime, distance) {
             var paint = true;
-            var playSound = false;
 
             if (!this.acheivement) {
                 distance = this.getActualDistance(distance);
@@ -2032,7 +1886,6 @@
                         // Flash score and play sound.
                         this.acheivement = true;
                         this.flashTimer = 0;
-                        playSound = true;
                     }
 
                     // Create a string representation of the distance with leading 0.
@@ -2069,7 +1922,6 @@
             }
 
             this.drawHighScore();
-            return playSound;
         },
 
         /**
@@ -2136,12 +1988,12 @@
      * @enum {number}
      */
     Cloud.config = {
-        HEIGHT: 38,
+        HEIGHT: 33,
         MAX_CLOUD_GAP: 400,
         MAX_SKY_LEVEL: 30,
         MIN_CLOUD_GAP: 100,
         MIN_SKY_LEVEL: 71,
-        WIDTH: 80
+        WIDTH: 70
     };
 
 
@@ -2167,14 +2019,19 @@
                 sourceWidth = sourceWidth * 2;
                 sourceHeight = sourceHeight * 2;
             }
+            this.canvasCtx.drawImage(
+                Runner.groundSprite,
+                0,
+                0,
+                Cloud.config.WIDTH,
+                Cloud.config.HEIGHT,
+                this.xPos,
+                100,
+                Cloud.config.WIDTH,
+                Cloud.config.HEIGHT
+            );
 
-            // this.canvasCtx.drawImage(Runner.groundSprite, 1201,
-            //     3,
-            //     80, 38,
-            //     this.xPos, this.yPos,
-            //     Cloud.config.WIDTH, Cloud.config.HEIGHT);
-
-            // this.canvasCtx.restore();
+            this.canvasCtx.restore();
         },
 
         /**
@@ -2201,163 +2058,6 @@
             return this.xPos + Cloud.config.WIDTH > 0;
         }
     };
-
-
-    //******************************************************************************
-
-    /**
-     * Nightmode shows a moon and stars on the horizon.
-     */
-    function NightMode(canvas, spritePos, containerWidth) {
-        this.spritePos = spritePos;
-        this.canvas = canvas;
-        this.canvasCtx = canvas.getContext('2d');
-        this.xPos = containerWidth - 50;
-        this.yPos = 30;
-        this.currentPhase = 0;
-        this.opacity = 0;
-        this.containerWidth = containerWidth;
-        this.stars = [];
-        this.drawStars = false;
-        this.placeStars();
-    };
-
-    /**
-     * @enum {number}
-     */
-    NightMode.config = {
-        FADE_SPEED: 0.035,
-        HEIGHT: 40,
-        MOON_SPEED: 0.25,
-        NUM_STARS: 2,
-        STAR_SIZE: 9,
-        STAR_SPEED: 0.3,
-        STAR_MAX_Y: 70,
-        WIDTH: 20
-    };
-
-    NightMode.phases = [140, 120, 100, 60, 40, 20, 0];
-
-    NightMode.prototype = {
-        /**
-         * Update moving moon, changing phases.
-         * @param {boolean} activated Whether night mode is activated.
-         * @param {number} delta
-         */
-        update: function (activated, delta) {
-            // Moon phase.
-            if (activated && this.opacity == 0) {
-                this.currentPhase++;
-
-                if (this.currentPhase >= NightMode.phases.length) {
-                    this.currentPhase = 0;
-                }
-            }
-
-            // Fade in / out.
-            if (activated && (this.opacity < 1 || this.opacity == 0)) {
-                this.opacity += NightMode.config.FADE_SPEED;
-            } else if (this.opacity > 0) {
-                this.opacity -= NightMode.config.FADE_SPEED;
-            }
-
-            // Set moon positioning.
-            if (this.opacity > 0) {
-                this.xPos = this.updateXPos(this.xPos, NightMode.config.MOON_SPEED);
-
-                // Update stars.
-                if (this.drawStars) {
-                    for (var i = 0; i < NightMode.config.NUM_STARS; i++) {
-                        this.stars[i].x = this.updateXPos(this.stars[i].x,
-                            NightMode.config.STAR_SPEED);
-                    }
-                }
-                this.draw();
-            } else {
-                this.opacity = 0;
-                this.placeStars();
-            }
-            this.drawStars = true;
-        },
-
-        updateXPos: function (currentPos, speed) {
-            if (currentPos < -NightMode.config.WIDTH) {
-                currentPos = this.containerWidth;
-            } else {
-                currentPos -= speed;
-            }
-            return currentPos;
-        },
-
-        draw: function () {
-            var moonSourceWidth = this.currentPhase == 3 ? NightMode.config.WIDTH * 2 :
-                NightMode.config.WIDTH;
-            var moonSourceHeight = NightMode.config.HEIGHT;
-            var moonSourceX = this.spritePos.x + NightMode.phases[this.currentPhase];
-            var moonOutputWidth = moonSourceWidth;
-            var starSize = NightMode.config.STAR_SIZE;
-            var starSourceX = Runner.spriteDefinition.LDPI.STAR.x;
-
-            if (IS_HIDPI) {
-                moonSourceWidth *= 2;
-                moonSourceHeight *= 2;
-                moonSourceX = this.spritePos.x +
-                    (NightMode.phases[this.currentPhase] * 2);
-                starSize *= 2;
-                starSourceX = Runner.spriteDefinition.HDPI.STAR.x;
-            }
-
-            this.canvasCtx.save();
-            this.canvasCtx.globalAlpha = this.opacity;
-
-            // Stars.
-            // if (this.drawStars) {
-            //     for (var i = 0; i < NightMode.config.NUM_STARS; i++) {
-            //         this.canvasCtx.drawImage(Runner.movesSprite,
-            //             starSourceX, this.stars[i].sourceY, starSize, starSize,
-            //             Math.round(this.stars[i].x), this.stars[i].y,
-            //             NightMode.config.STAR_SIZE, NightMode.config.STAR_SIZE);
-            //     }
-            // }
-
-            // Moon.
-            // this.canvasCtx.drawImage(Runner.movesSprite, moonSourceX,
-            //     this.spritePos.y, moonSourceWidth, moonSourceHeight,
-            //     Math.round(this.xPos), this.yPos,
-            //     moonOutputWidth, NightMode.config.HEIGHT);
-
-            // this.canvasCtx.globalAlpha = 1;
-            // this.canvasCtx.restore();
-        },
-
-        // Do star placement.
-        placeStars: function () {
-            var segmentSize = Math.round(this.containerWidth /
-                NightMode.config.NUM_STARS);
-
-            for (var i = 0; i < NightMode.config.NUM_STARS; i++) {
-                this.stars[i] = {};
-                this.stars[i].x = getRandomNum(segmentSize * i, segmentSize * (i + 1));
-                this.stars[i].y = getRandomNum(0, NightMode.config.STAR_MAX_Y);
-
-                if (IS_HIDPI) {
-                    this.stars[i].sourceY = Runner.spriteDefinition.HDPI.STAR.y +
-                        NightMode.config.STAR_SIZE * 2 * i;
-                } else {
-                    this.stars[i].sourceY = Runner.spriteDefinition.LDPI.STAR.y +
-                        NightMode.config.STAR_SIZE * i;
-                }
-            }
-        },
-
-        reset: function () {
-            this.currentPhase = 0;
-            this.opacity = 0;
-            this.update(false);
-        }
-
-    };
-
 
     //******************************************************************************
 
@@ -2391,8 +2091,8 @@
      */
     HorizonLine.dimensions = {
         WIDTH: 732,
-        HEIGHT: 200,
-        YPOS: 127
+        HEIGHT: 300,
+        YPOS: 247
     };
 
 
@@ -2432,7 +2132,7 @@
         draw: function () {
             this.canvasCtx.drawImage(Runner.groundSprite,
                 0,
-                152,
+                142,
                 732,
                 this.dimensions.HEIGHT,
                 this.xPos[0],
@@ -2442,7 +2142,7 @@
 
             this.canvasCtx.drawImage(Runner.groundSprite,
                 0,
-                152,
+                142,
                 732,
                 this.dimensions.HEIGHT,
                 this.xPos[1],
@@ -2517,7 +2217,6 @@
         this.horizonOffsets = [0, 0];
         this.cloudFrequency = this.config.CLOUD_FREQUENCY;
         this.spritePos = spritePos;
-        this.nightMode = null;
 
         // Cloud
         this.clouds = [];
@@ -2534,7 +2233,7 @@
      * @enum {number}
      */
     Horizon.config = {
-        BG_CLOUD_SPEED: 0.2,
+        BG_CLOUD_SPEED: 1.2,
         BUMPY_THRESHOLD: 0,
         CLOUD_FREQUENCY: .5,
         HORIZON_HEIGHT: 16,
@@ -2549,8 +2248,6 @@
         init: function () {
             this.addCloud();
             this.horizonLine = new HorizonLine(this.canvas, this.spritePos.HORIZON);
-            // this.nightMode = new NightMode(this.canvas, this.spritePos.MOON,
-            //     this.dimensions.WIDTH);
         },
 
         /**
@@ -2559,13 +2256,11 @@
          * @param {boolean} updateObstacles Used as an override to prevent
          *     the obstacles from being updated / added. This happens in the
          *     ease in section.
-         * @param {boolean} showNightMode Night mode activated.
          */
-        update: function (deltaTime, currentSpeed, updateObstacles, showNightMode) {
+        update: function (deltaTime, currentSpeed, updateObstacles) {
             this.runningTime += deltaTime;
             this.horizonLine.update(deltaTime, currentSpeed);
-            // this.nightMode.update(showNightMode);
-            // this.updateClouds(deltaTime, currentSpeed);
+            this.updateClouds(deltaTime, currentSpeed);
 
             if (updateObstacles) {
                 this.updateObstacles(deltaTime, currentSpeed);
@@ -2694,7 +2389,6 @@
         reset: function () {
             this.obstacles = [];
             this.horizonLine.reset();
-            this.nightMode.reset();
         },
 
         /**
