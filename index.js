@@ -291,7 +291,7 @@
                 this.spriteDef = Runner.spriteDefinition.HDPI;
             } else {
                 Runner.imageSprite = document.getElementById('offline-resources-2x');
-                Runner.imageSprite2 = document.getElementById('land');
+                Runner.imageSprite2 = document.getElementById('ground');
                 this.spriteDef = Runner.spriteDefinition.LDPI;
             }
 
@@ -2384,8 +2384,8 @@
      * @enum {number}
      */
     HorizonLine.dimensions = {
-        WIDTH: 600,
-        HEIGHT: 120,
+        WIDTH: 732,
+        HEIGHT: 200,
         YPOS: 127
     };
 
@@ -2424,17 +2424,25 @@
          * Draw the horizon line.
          */
         draw: function () {
-            this.canvasCtx.drawImage(Runner.imageSprite2, 53,
-                82,
-                50, this.dimensions.HEIGHT,
-                this.xPos[0], this.yPos - 20,
-                this.dimensions.WIDTH, this.dimensions.HEIGHT);
+            this.canvasCtx.drawImage(Runner.imageSprite2,
+                0,
+                152,
+                732,
+                this.dimensions.HEIGHT,
+                this.xPos[0],
+                this.yPos - 20,
+                this.dimensions.WIDTH,
+                this.dimensions.HEIGHT);
 
-            this.canvasCtx.drawImage(Runner.imageSprite2,53,
-                82,
-                50, this.dimensions.HEIGHT,
-                this.xPos[1], this.yPos - 20,
-                this.dimensions.WIDTH, this.dimensions.HEIGHT);
+            this.canvasCtx.drawImage(Runner.imageSprite2,
+                0,
+                152,
+                732,
+                this.dimensions.HEIGHT,
+                this.xPos[1],
+                this.yPos - 20,
+                this.dimensions.WIDTH,
+                this.dimensions.HEIGHT);
         },
 
         /**
