@@ -116,8 +116,8 @@
         INVERT_DISTANCE: 700,
         MAX_BLINK_COUNT: 3,
         MAX_CLOUDS: 6,
-        MAX_OBSTACLE_LENGTH: 3,
-        MAX_OBSTACLE_DUPLICATION: 2,
+        MAX_OBSTACLE_LENGTH: 1,
+        MAX_OBSTACLE_DUPLICATION: 1,
         MAX_SPEED: 13,
         MIN_JUMP_HEIGHT: 35,
         MOBILE_SPEED_COEFFICIENT: 1.2,
@@ -159,12 +159,12 @@
      */
     Runner.spriteDefinition = {
         LDPI: {
-            CACTUS_LARGE: { x: 332, y: 2 },
-            CACTUS_SMALL: { x: 228, y: 2 },
+            CACTUS_LARGE: { x: 130, y: 60 },
+            CACTUS_SMALL: { x: 168, y: 47 },
             CLOUD: { x: 86, y: 2 },
             HORIZON: { x: 2, y: 54 },
             MOON: { x: 484, y: 2 },
-            PTERODACTYL: { x: 134, y: 2 },
+            PTERODACTYL: { x: 168, y: 47 },
             RESTART: { x: 2, y: 2 },
             TEXT_SPRITE: { x: 655, y: 2 },
             TREX: { x: 0, y: 13 },
@@ -287,19 +287,20 @@
          */
         loadImages: function () {
             if (IS_HIDPI) {
-                Runner.imageSprite = document.getElementById('offline-resources-2x');
+                Runner.movesSprite = document.getElementById('moves');
                 this.spriteDef = Runner.spriteDefinition.HDPI;
             } else {
-                Runner.imageSprite = document.getElementById('offline-resources-2x');
-                Runner.imageSprite2 = document.getElementById('ground');
+                Runner.movesSprite = document.getElementById('moves');
+                Runner.groundSprite = document.getElementById('ground');
+                Runner.allSprite = document.getElementById('all');
                 this.spriteDef = Runner.spriteDefinition.LDPI;
             }
 
-            if (Runner.imageSprite.complete) {
+            if (Runner.movesSprite.complete) {
                 this.init();
             } else {
                 // If the images are not yet loaded, add a listener.
-                Runner.imageSprite.addEventListener(Runner.events.LOAD,
+                Runner.movesSprite.addEventListener(Runner.events.LOAD,
                     this.init.bind(this));
             }
         },
@@ -548,18 +549,18 @@
                 }
 
                 // Check for collisions.
-                // var collision = hasObstacles &&
-                //     checkForCollision(this.horizon.obstacles[0], this.tRex);
+                var collision = hasObstacles &&
+                    checkForCollision(this.horizon.obstacles[0], this.tRex, this.canvasCtx);
 
-                // if (!collision) {
-                //     this.distanceRan += this.currentSpeed * deltaTime / this.msPerFrame;
+                if (!collision) {
+                    this.distanceRan += this.currentSpeed * deltaTime / this.msPerFrame;
 
-                //     if (this.currentSpeed < this.config.MAX_SPEED) {
-                //         this.currentSpeed += this.config.ACCELERATION;
-                //     }
-                // } else {
-                //     this.gameOver();
-                // }
+                    if (this.currentSpeed < this.config.MAX_SPEED) {
+                        this.currentSpeed += this.config.ACCELERATION;
+                    }
+                } else {
+                    this.gameOver();
+                }
 
                 // var playAchievementSound = this.distanceMeter.update(deltaTime,
                 //     Math.ceil(this.distanceRan));
@@ -1073,12 +1074,12 @@
             textSourceY += this.textImgPos.y;
 
             // Game over text from sprite.
-            this.canvasCtx.drawImage(Runner.imageSprite,
+            this.canvasCtx.drawImage(Runner.movesSprite,
                 textSourceX, textSourceY, textSourceWidth, textSourceHeight,
                 textTargetX, textTargetY, textTargetWidth, textTargetHeight);
 
             // Restart button.
-            this.canvasCtx.drawImage(Runner.imageSprite,
+            this.canvasCtx.drawImage(Runner.movesSprite,
                 this.restartImgPos.x, this.restartImgPos.y,
                 restartSourceWidth, restartSourceHeight,
                 restartTargetX, restartTargetY, dimensions.RESTART_WIDTH,
@@ -1342,11 +1343,11 @@
                     sourceX += sourceWidth * this.currentFrame;
                 }
 
-                // this.canvasCtx.drawImage(Runner.imageSprite,
-                //     sourceX, this.spritePos.y,
-                //     sourceWidth * this.size, sourceHeight,
-                //     this.xPos, this.yPos,
-                //     this.typeConfig.width * this.size, this.typeConfig.height);
+                this.canvasCtx.drawImage(Runner.allSprite,
+                    sourceX, this.spritePos.y,
+                    sourceWidth * this.size, sourceHeight,
+                    this.xPos, this.yPos,
+                    this.typeConfig.width * this.size, this.typeConfig.height);
             },
 
             /**
@@ -1431,7 +1432,7 @@
             height: 35,
             yPos: 105,
             multipleSpeed: 4,
-            minGap: 120,
+            minGap: 30,
             minSpeed: 0,
             collisionBoxes: [
                 new CollisionBox(0, 7, 5, 27),
@@ -1441,23 +1442,26 @@
         },
         {
             type: 'CACTUS_LARGE',
-            width: 25,
-            height: 50,
-            yPos: 90,
+            width: 40,
+            height: 100,
+            yPos: 80,
             multipleSpeed: 7,
-            minGap: 120,
+            minGap: 300,
             minSpeed: 0,
             collisionBoxes: [
+                new CollisionBox(0, 40, 60, 20),
+                new CollisionBox(45, 10, 10, 40),
                 new CollisionBox(0, 12, 7, 38),
-                new CollisionBox(8, 0, 7, 49),
-                new CollisionBox(13, 10, 10, 38)
+                
+                // new CollisionBox(8, 0, 7, 49),
+                // new CollisionBox(13, 10, 10, 38)
             ]
         },
         {
             type: 'PTERODACTYL',
             width: 46,
             height: 40,
-            yPos: [100, 75, 50], // Variable height.
+            yPos: [30, 100], // Variable height.
             yPosMobile: [100, 50], // Variable height mobile.
             multipleSpeed: 999,
             minSpeed: 8.5,
@@ -1544,12 +1548,14 @@
             new CollisionBox(1, 18, 55, 25)
         ],
         RUNNING: [
-            new CollisionBox(22, 0, 17, 16),
-            new CollisionBox(1, 18, 30, 9),
-            new CollisionBox(10, 35, 14, 8),
-            new CollisionBox(1, 24, 29, 5),
-            new CollisionBox(5, 30, 21, 4),
-            new CollisionBox(9, 34, 15, 4)
+            // new CollisionBox(22, 0, 17, 16),
+            // new CollisionBox(1, 18, 30, 9),
+            // new CollisionBox(10, 35, 14, 8),
+            // new CollisionBox(1, 24, 29, 5),
+            // new CollisionBox(5, 30, 21, 4),
+            // new CollisionBox(9, 34, 15, 4),
+            new CollisionBox(40, 0, 30, 90),            
+            new CollisionBox(60, 60, 20, 20),            
         ]
     };
 
@@ -1697,7 +1703,7 @@
 
             // Ducking.
             if (this.ducking && this.status != Trex.status.CRASHED) {
-                this.canvasCtx.drawImage(Runner.imageSprite, sourceX, sourceY,
+                this.canvasCtx.drawImage(Runner.movesSprite, sourceX, sourceY,
                     sourceWidth, sourceHeight,
                     this.xPos, this.yPos - 10,
                     this.config.WIDTH_DUCK, this.config.HEIGHT);
@@ -1707,7 +1713,7 @@
                     this.xPos++;
                 }
                 // Standing / running
-                this.canvasCtx.drawImage(Runner.imageSprite, sourceX, sourceY,
+                this.canvasCtx.drawImage(Runner.movesSprite, sourceX, sourceY,
                     sourceWidth, sourceHeight,
                     this.xPos, this.yPos - 10,
                     this.config.WIDTH, this.config.HEIGHT);
@@ -1852,7 +1858,7 @@
     function DistanceMeter(canvas, spritePos, canvasWidth) {
         this.canvas = canvas;
         this.canvasCtx = canvas.getContext('2d');
-        this.image = Runner.imageSprite;
+        this.image = Runner.movesSprite;
         this.spritePos = spritePos;
         this.x = 0;
         this.y = 5;
@@ -2162,7 +2168,7 @@
                 sourceHeight = sourceHeight * 2;
             }
 
-            // this.canvasCtx.drawImage(Runner.imageSprite2, 1201,
+            // this.canvasCtx.drawImage(Runner.groundSprite, 1201,
             //     3,
             //     80, 38,
             //     this.xPos, this.yPos,
@@ -2307,7 +2313,7 @@
             // Stars.
             // if (this.drawStars) {
             //     for (var i = 0; i < NightMode.config.NUM_STARS; i++) {
-            //         this.canvasCtx.drawImage(Runner.imageSprite,
+            //         this.canvasCtx.drawImage(Runner.movesSprite,
             //             starSourceX, this.stars[i].sourceY, starSize, starSize,
             //             Math.round(this.stars[i].x), this.stars[i].y,
             //             NightMode.config.STAR_SIZE, NightMode.config.STAR_SIZE);
@@ -2315,7 +2321,7 @@
             // }
 
             // Moon.
-            // this.canvasCtx.drawImage(Runner.imageSprite, moonSourceX,
+            // this.canvasCtx.drawImage(Runner.movesSprite, moonSourceX,
             //     this.spritePos.y, moonSourceWidth, moonSourceHeight,
             //     Math.round(this.xPos), this.yPos,
             //     moonOutputWidth, NightMode.config.HEIGHT);
@@ -2424,7 +2430,7 @@
          * Draw the horizon line.
          */
         draw: function () {
-            this.canvasCtx.drawImage(Runner.imageSprite2,
+            this.canvasCtx.drawImage(Runner.groundSprite,
                 0,
                 152,
                 732,
@@ -2434,7 +2440,7 @@
                 this.dimensions.WIDTH,
                 this.dimensions.HEIGHT);
 
-            this.canvasCtx.drawImage(Runner.imageSprite2,
+            this.canvasCtx.drawImage(Runner.groundSprite,
                 0,
                 152,
                 732,
@@ -2561,9 +2567,9 @@
             // this.nightMode.update(showNightMode);
             // this.updateClouds(deltaTime, currentSpeed);
 
-            // if (updateObstacles) {
-            //     this.updateObstacles(deltaTime, currentSpeed);
-            // }
+            if (updateObstacles) {
+                this.updateObstacles(deltaTime, currentSpeed);
+            }
         },
 
         /**
