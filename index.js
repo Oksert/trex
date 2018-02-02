@@ -1699,7 +1699,7 @@
             if (this.ducking && this.status != Trex.status.CRASHED) {
                 this.canvasCtx.drawImage(Runner.imageSprite, sourceX, sourceY,
                     sourceWidth, sourceHeight,
-                    this.xPos, this.yPos - 24,
+                    this.xPos, this.yPos - 10,
                     this.config.WIDTH_DUCK, this.config.HEIGHT);
             } else {
                 // Crashed whilst ducking. Trex is standing up so needs adjustment.
@@ -1709,7 +1709,7 @@
                 // Standing / running
                 this.canvasCtx.drawImage(Runner.imageSprite, sourceX, sourceY,
                     sourceWidth, sourceHeight,
-                    this.xPos, this.yPos - 27,
+                    this.xPos, this.yPos - 10,
                     this.config.WIDTH, this.config.HEIGHT);
             }
         },
