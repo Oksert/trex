@@ -147,7 +147,7 @@
      */
     Runner.spriteDefinition = {
         LDPI: {
-            CACTUS_LARGE: { x: 130, y: 60 },
+            CACTUS_LARGE: { x: 269, y:60 },
             CACTUS_SMALL: { x: 168, y: 47 },
             CLOUD: { x: 0, y: 0 },
             HORIZON: { x: 2, y: 54 },
@@ -1006,7 +1006,7 @@
         var obstacleBox = new CollisionBox(
             obstacle.xPos + 1,
             obstacle.yPos + 1,
-            obstacle.typeConfig.width * obstacle.size - 2,
+            obstacle.typeConfig.width - 2,
             obstacle.typeConfig.height - 2);
 
         // Debug outer box
@@ -1158,13 +1158,13 @@
      * Coefficient for calculating the maximum gap.
      * @const
      */
-    Obstacle.MAX_GAP_COEFFICIENT = 1.5;
+    Obstacle.MAX_GAP_COEFFICIENT = 1;
 
     /**
      * Maximum obstacle grouping count.
      * @const
      */
-    Obstacle.MAX_OBSTACLE_LENGTH = 3,
+    Obstacle.MAX_OBSTACLE_LENGTH = 1,
 
 
         Obstacle.prototype = {
@@ -1238,10 +1238,10 @@
                 }
 
                 this.canvasCtx.drawImage(Runner.allSprite,
-                    sourceX, this.spritePos.y,
-                    sourceWidth * this.size, sourceHeight,
+                    this.spritePos.x, this.spritePos.y,
+                    sourceWidth, sourceHeight,
                     this.xPos, this.yPos,
-                    this.typeConfig.width * this.size, this.typeConfig.height);
+                    this.typeConfig.width, this.typeConfig.height);
             },
 
             /**
@@ -1322,7 +1322,7 @@
     Obstacle.types = [
         {
             type: 'CACTUS_SMALL',
-            width: 17,
+            width: 40,
             height: 35,
             yPos: 245,
             multipleSpeed: 4,
@@ -1336,7 +1336,7 @@
         },
         {
             type: 'CACTUS_LARGE',
-            width: 40,
+            width: 105,
             height: 100,
             yPos: 220,
             multipleSpeed: 7,
@@ -1476,7 +1476,7 @@
         },
         RUNNING: {
             frames: [0, 105, 210],
-            msPerFrame: 1000 / 5
+            msPerFrame: 1000 / 10
         },
         CRASHED: {
             frames: [220],
