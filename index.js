@@ -47,6 +47,9 @@
         this.inverted = false;
         this.invertTimer = 0;
         this.resizeTimerId_ = null;
+        
+        Runner.bestScore = localStorage.getItem('footballGameScore') || 0;
+        Runner.distanceMeterScore = 0;
 
 
         this.playCount = 0;
@@ -452,6 +455,10 @@
             this.tRex.playingIntro = false;
             this.containerEl.style.webkitAnimation = '';
             this.playCount++;
+            
+            Runner.distanceMeterCounter = setInterval(function () {
+                return Runner.distanceMeterScore++;
+            }.bind(this), 300);
 
             // Handle tabbing off the page. Pause the current game.
             document.addEventListener(Runner.events.VISIBILITY,
@@ -765,6 +772,11 @@
                 this.tRex.reset();
                 this.invert(true);
                 this.update();
+                
+                Runner.distanceMeterScore = 0;
+                Runner.distanceMeterCounter = setInterval(function () {
+                return Runner.distanceMeterScore++;
+                }.bind(this), 300);
             }
         },
 
@@ -936,49 +948,59 @@
          * Draw the panel.
          */
         draw: function () {
-            var dimensions = GameOverPanel.dimensions;
-
-            var centerX = this.canvasDimensions.WIDTH / 2;
-
-            // Game over text.
-            var textSourceX = dimensions.TEXT_X;
-            var textSourceY = dimensions.TEXT_Y;
-            var textSourceWidth = dimensions.TEXT_WIDTH;
-            var textSourceHeight = dimensions.TEXT_HEIGHT;
-
-            var textTargetX = Math.round(centerX - (dimensions.TEXT_WIDTH / 2));
-            var textTargetY = Math.round((this.canvasDimensions.HEIGHT - 25) / 3);
-            var textTargetWidth = dimensions.TEXT_WIDTH;
-            var textTargetHeight = dimensions.TEXT_HEIGHT;
-
-            var restartSourceWidth = dimensions.RESTART_WIDTH;
-            var restartSourceHeight = dimensions.RESTART_HEIGHT;
-            var restartTargetX = centerX - (dimensions.RESTART_WIDTH / 2);
-            var restartTargetY = this.canvasDimensions.HEIGHT / 2;
-
-            if (IS_HIDPI) {
-                textSourceY *= 2;
-                textSourceX *= 2;
-                textSourceWidth *= 2;
-                textSourceHeight *= 2;
-                restartSourceWidth *= 2;
-                restartSourceHeight *= 2;
+            
+            if (Runner.distanceMeterScore > Runner.bestScore) {
+                Runner.bestScore = Runner.distanceMeterScore;
+                localStorage.setItem('footballGameScore', Runner.bestScore);
             }
+            
+            clearInterval(Runner.distanceMeterCounter);
+            Runner.distanceMeterScore = 0;
+            
+            
+            // var dimensions = GameOverPanel.dimensions;
 
-            textSourceX += this.textImgPos.x;
-            textSourceY += this.textImgPos.y;
+            // var centerX = this.canvasDimensions.WIDTH / 2;
 
-            // Game over text from sprite.
-            this.canvasCtx.drawImage(Runner.movesSprite,
-                textSourceX, textSourceY, textSourceWidth, textSourceHeight,
-                textTargetX, textTargetY, textTargetWidth, textTargetHeight);
+            // // Game over text.
+            // var textSourceX = dimensions.TEXT_X;
+            // var textSourceY = dimensions.TEXT_Y;
+            // var textSourceWidth = dimensions.TEXT_WIDTH;
+            // var textSourceHeight = dimensions.TEXT_HEIGHT;
 
-            // Restart button.
-            this.canvasCtx.drawImage(Runner.movesSprite,
-                this.restartImgPos.x, this.restartImgPos.y,
-                restartSourceWidth, restartSourceHeight,
-                restartTargetX, restartTargetY, dimensions.RESTART_WIDTH,
-                dimensions.RESTART_HEIGHT);
+            // var textTargetX = Math.round(centerX - (dimensions.TEXT_WIDTH / 2));
+            // var textTargetY = Math.round((this.canvasDimensions.HEIGHT - 25) / 3);
+            // var textTargetWidth = dimensions.TEXT_WIDTH;
+            // var textTargetHeight = dimensions.TEXT_HEIGHT;
+
+            // var restartSourceWidth = dimensions.RESTART_WIDTH;
+            // var restartSourceHeight = dimensions.RESTART_HEIGHT;
+            // var restartTargetX = centerX - (dimensions.RESTART_WIDTH / 2);
+            // var restartTargetY = this.canvasDimensions.HEIGHT / 2;
+
+            // if (IS_HIDPI) {
+            //     textSourceY *= 2;
+            //     textSourceX *= 2;
+            //     textSourceWidth *= 2;
+            //     textSourceHeight *= 2;
+            //     restartSourceWidth *= 2;
+            //     restartSourceHeight *= 2;
+            // }
+
+            // textSourceX += this.textImgPos.x;
+            // textSourceY += this.textImgPos.y;
+
+            // // Game over text from sprite.
+            // this.canvasCtx.drawImage(Runner.movesSprite,
+            //     textSourceX, textSourceY, textSourceWidth, textSourceHeight,
+            //     textTargetX, textTargetY, textTargetWidth, textTargetHeight);
+
+            // // Restart button.
+            // this.canvasCtx.drawImage(Runner.movesSprite,
+            //     this.restartImgPos.x, this.restartImgPos.y,
+            //     restartSourceWidth, restartSourceHeight,
+            //     restartTargetX, restartTargetY, dimensions.RESTART_WIDTH,
+            //     dimensions.RESTART_HEIGHT);
         }
     };
 
@@ -1406,10 +1428,6 @@
         this.speedDrop = false;
         this.jumpCount = 0;
         this.jumpspotX = 0;
-        this.distanceMeterScore = 0;
-        this.distanceMeterCounter = setInterval(function () {
-            return this.distanceMeterScore++;
-        }.bind(this), 300,);
 
         this.init();
     };
@@ -1579,7 +1597,13 @@
             
             this.canvasCtx.font = "24px Pixel";
             this.canvasCtx.fillStyle = '#535353';
-            this.canvasCtx.fillText('score ' + this.distanceMeterScore, 450, 30);
+            this.canvasCtx.fillText('SCORE ' + Runner.distanceMeterScore, 450, 30);
+            
+            if (Runner.bestScore) {
+                this.canvasCtx.font = "24px Pixel";
+                this.canvasCtx.fillStyle = '#535353';
+                this.canvasCtx.fillText('BEST SCORE ' + Runner.bestScore, 150, 30);
+            }
 
             if (IS_HIDPI) {
                 sourceX *= 2;
@@ -1739,7 +1763,6 @@
         this.flashTimer = 0;
         this.flashIterations = 0;
         this.invertTrigger = false;
-        this.distanceMeterScore = 0;
 
         this.config = DistanceMeter.config;
         this.maxScoreUnits = this.config.MAX_DISTANCE_UNITS;
