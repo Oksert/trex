@@ -276,6 +276,7 @@
                 Runner.groundSprite = document.getElementById('ground');
                 Runner.allSprite = document.getElementById('all');
                 Runner.over = document.getElementById('game_over');
+                Runner.cloudSprite = document.getElementById('cloud');
                 
                 this.spriteDef = Runner.spriteDefinition.LDPI;
             }
@@ -2079,7 +2080,7 @@
                 sourceHeight = sourceHeight * 2;
             }
             this.canvasCtx.drawImage(
-                Runner.groundSprite,
+                Runner.cloudSprite,
                 0,
                 0,
                 Cloud.config.WIDTH,
