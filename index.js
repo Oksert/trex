@@ -504,7 +504,7 @@
 
                 // Check for collisions.
                 var collision = hasObstacles &&
-                    checkForCollision(this.horizon.obstacles[0], this.tRex);
+                    checkForCollision(this.horizon.obstacles[0], this.tRex, this.canvasCtx);
 
                 if (!collision) {
                     this.distanceRan += this.currentSpeed * deltaTime / this.msPerFrame;
@@ -1344,8 +1344,8 @@
             minSpeed: 0,
             collisionBoxes: [
                 new CollisionBox(0, 40, 60, 20),
-                new CollisionBox(45, 10, 10, 40),
-                new CollisionBox(0, 12, 7, 38),
+                new CollisionBox(43, 0, 55, 40),
+                // new CollisionBox(0, 12, 7, 38),
                 
                 // new CollisionBox(8, 0, 7, 49),
                 // new CollisionBox(13, 10, 10, 38)
@@ -1437,7 +1437,7 @@
      */
     Trex.collisionBoxes = {
         DUCKING: [
-            new CollisionBox(1, 18, 55, 25)
+            new CollisionBox(1, 30, 100, 50)
         ],
         RUNNING: [
             // new CollisionBox(22, 0, 17, 16),
@@ -1447,7 +1447,7 @@
             // new CollisionBox(5, 30, 21, 4),
             // new CollisionBox(9, 34, 15, 4),
             new CollisionBox(40, 0, 30, 90),            
-            new CollisionBox(60, 60, 20, 20),            
+            new CollisionBox(40, 60, 20, 20),            
         ]
     };
 
