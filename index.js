@@ -109,9 +109,9 @@
         INVERT_DISTANCE: 700,
         MAX_CLOUDS: 6,
         MAX_OBSTACLE_LENGTH: 1,
-        MAX_OBSTACLE_DUPLICATION: 1,
+        MAX_OBSTACLE_DUPLICATION: 3,
         MAX_SPEED: 13,
-        MIN_JUMP_HEIGHT: 15,
+        MIN_JUMP_HEIGHT: 60,
         MOBILE_SPEED_COEFFICIENT: 1.2,
         RESOURCE_TEMPLATE_ID: 'audio-resources',
         SPEED: 6,
@@ -512,7 +512,7 @@
 
                 // Check for collisions.
                 var collision = hasObstacles &&
-                    checkForCollision(this.horizon.obstacles[0], this.tRex, this.canvasCtx);
+                    checkForCollision(this.horizon.obstacles[0], this.tRex);
 
                 if (!collision) {
                     this.distanceRan += this.currentSpeed * deltaTime / this.msPerFrame;
@@ -1181,7 +1181,7 @@
      * Coefficient for calculating the maximum gap.
      * @const
      */
-    Obstacle.MAX_GAP_COEFFICIENT = 1;
+    Obstacle.MAX_GAP_COEFFICIENT = 3;
 
     /**
      * Maximum obstacle grouping count.
@@ -1442,10 +1442,10 @@
         GRAVITY: 0.6,
         HEIGHT: 105,
         HEIGHT_DUCK: 25,
-        INIITAL_JUMP_VELOCITY: -10,
+        INIITAL_JUMP_VELOCITY: -13,
         INTRO_DURATION: 1500,
-        MAX_JUMP_HEIGHT: 30,
-        MIN_JUMP_HEIGHT: 30,
+        MAX_JUMP_HEIGHT: 60,
+        MIN_JUMP_HEIGHT: 10,
         SPEED_DROP_COEFFICIENT: 3,
         SPRITE_WIDTH: 262,
         START_X_POS: 0,
