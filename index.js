@@ -47,7 +47,6 @@
         this.inverted = false;
         this.invertTimer = 0;
         this.resizeTimerId_ = null;
-        
         Runner.bestScore = localStorage.getItem('footballGameScore') || 0;
         Runner.distanceMeterScore = 0;
 
@@ -275,6 +274,8 @@
                 Runner.movesSprite = document.getElementById('moves');
                 Runner.groundSprite = document.getElementById('ground');
                 Runner.allSprite = document.getElementById('all');
+                Runner.over = document.getElementById('game_over');
+                
                 this.spriteDef = Runner.spriteDefinition.LDPI;
             }
 
@@ -455,6 +456,7 @@
             this.tRex.playingIntro = false;
             this.containerEl.style.webkitAnimation = '';
             this.playCount++;
+            document.getElementById('modal').close()
             
             Runner.distanceMeterCounter = setInterval(function () {
                 return Runner.distanceMeterScore++;
@@ -719,7 +721,7 @@
             this.distanceMeter.acheivement = false;
 
             this.tRex.update(100, Trex.status.CRASHED);
-
+            document.getElementById('modal').show()
             // Game over panel.
             if (!this.gameOverPanel) {
                 this.gameOverPanel = new GameOverPanel(this.canvas,
@@ -772,6 +774,7 @@
                 this.tRex.reset();
                 this.invert(true);
                 this.update();
+                 document.getElementById('modal').close()
                 
                 Runner.distanceMeterScore = 0;
                 Runner.distanceMeterCounter = setInterval(function () {
@@ -923,9 +926,9 @@
      */
     GameOverPanel.dimensions = {
         TEXT_X: 0,
-        TEXT_Y: 13,
-        TEXT_WIDTH: 191,
-        TEXT_HEIGHT: 11,
+        TEXT_Y: 0,
+        TEXT_WIDTH: 226,
+        TEXT_HEIGHT: 78,
         RESTART_WIDTH: 36,
         RESTART_HEIGHT: 32
     };
@@ -990,12 +993,12 @@
             // textSourceX += this.textImgPos.x;
             // textSourceY += this.textImgPos.y;
 
-            // // Game over text from sprite.
-            // this.canvasCtx.drawImage(Runner.movesSprite,
+            // Game over text from sprite.
+            // this.canvasCtx.drawImage(Runner.over,
             //     textSourceX, textSourceY, textSourceWidth, textSourceHeight,
             //     textTargetX, textTargetY, textTargetWidth, textTargetHeight);
 
-            // // Restart button.
+            // Restart button.
             // this.canvasCtx.drawImage(Runner.movesSprite,
             //     this.restartImgPos.x, this.restartImgPos.y,
             //     restartSourceWidth, restartSourceHeight,
@@ -1502,7 +1505,7 @@
             msPerFrame: 1000 / 10
         },
         CRASHED: {
-            frames: [220],
+            frames: [525],
             msPerFrame: 1000 / 60
         },
         JUMPING: {

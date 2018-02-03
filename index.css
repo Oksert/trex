@@ -45,7 +45,34 @@ html, body {
   top: 35px;
   width: 732px;
 }
-
+.modalBox__image {
+  background-image: url("assets/game_over.png");
+  width: 230px;
+  height: 80px;
+  position: absolute
+}
+dialog {
+  z-index: 10;
+  border: none;
+  background: transparent;
+  top: 118px;
+  left: -200px;
+}
+.modalBox__image-link {
+  width: 30px;
+  height: 30px;
+}
+.modalBox__image-link_fb {
+  position: relative;
+    top: 42px;
+    left: 61px;
+   
+}
+.modalBox__image-link_vk {
+  position: relative;
+  top: 42px;
+  left: 61px;
+}
 .offline .runner-canvas {
   height: 300px;
   max-width: 600px;
