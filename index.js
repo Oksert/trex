@@ -48,6 +48,7 @@
         this.invertTimer = 0;
         this.resizeTimerId_ = null;
 
+
         this.playCount = 0;
 
         // Images.
@@ -327,9 +328,9 @@
             this.horizon = new Horizon(this.canvas, this.spriteDef, this.dimensions,
                 this.config.GAP_COEFFICIENT);
 
-            // // Distance meter
-            // this.distanceMeter = new DistanceMeter(this.canvas,
-            //     this.spriteDef.TEXT_SPRITE, this.dimensions.WIDTH);
+            // Distance meter
+            this.distanceMeter = new DistanceMeter(this.canvas,
+            this.spriteDef.TEXT_SPRITE, this.dimensions.WIDTH);
 
             // Draw t-rex
             this.tRex = new Trex(this.canvas, this.spriteDef.TREX);
@@ -516,21 +517,21 @@
                     this.gameOver();
                 }
 
-                // var playAchievementSound = this.distanceMeter.update(deltaTime,
-                //     Math.ceil(this.distanceRan));
+                var playAchievementSound = this.distanceMeter.update(deltaTime,
+                    Math.ceil(this.distanceRan));
 
-                    // var actualDistance =
-                    //     this.distanceMeter.getActualDistance(Math.ceil(this.distanceRan));
+                    var actualDistance =
+                        this.distanceMeter.getActualDistance(Math.ceil(this.distanceRan));
 
-                    // if (actualDistance > 0) {
-                    //     this.invertTrigger = !(actualDistance %
-                    //         this.config.INVERT_DISTANCE);
+                    if (actualDistance > 0) {
+                        this.invertTrigger = !(actualDistance %
+                            this.config.INVERT_DISTANCE);
 
-                    //     if (this.invertTrigger && this.invertTimer === 0) {
-                    //         this.invertTimer += deltaTime;
-                    //         this.invert();
-                    //     }
-                    // }
+                        if (this.invertTrigger && this.invertTimer === 0) {
+                            this.invertTimer += deltaTime;
+                            this.invert();
+                        }
+                    }
             }
 
             if (this.playing) {
@@ -1405,6 +1406,10 @@
         this.speedDrop = false;
         this.jumpCount = 0;
         this.jumpspotX = 0;
+        this.distanceMeterScore = 0;
+        this.distanceMeterCounter = setInterval(function () {
+            return this.distanceMeterScore++;
+        }.bind(this), 300,);
 
         this.init();
     };
@@ -1446,8 +1451,8 @@
             // new CollisionBox(1, 24, 29, 5),
             // new CollisionBox(5, 30, 21, 4),
             // new CollisionBox(9, 34, 15, 4),
-            new CollisionBox(40, 0, 30, 90),            
-            new CollisionBox(40, 60, 20, 20),            
+            new CollisionBox(40, 0, 30, 90),
+            new CollisionBox(40, 60, 20, 20),
         ]
     };
 
@@ -1570,6 +1575,11 @@
             var sourceWidth = this.ducking && this.status != Trex.status.CRASHED ?
                 this.config.WIDTH_DUCK : this.config.WIDTH;
             var sourceHeight = this.config.HEIGHT;
+            
+            
+            this.canvasCtx.font = "24px Pixel";
+            this.canvasCtx.fillStyle = '#535353';
+            this.canvasCtx.fillText('score ' + this.distanceMeterScore, 450, 30);
 
             if (IS_HIDPI) {
                 sourceX *= 2;
@@ -1729,6 +1739,7 @@
         this.flashTimer = 0;
         this.flashIterations = 0;
         this.invertTrigger = false;
+        this.distanceMeterScore = 0;
 
         this.config = DistanceMeter.config;
         this.maxScoreUnits = this.config.MAX_DISTANCE_UNITS;
@@ -1832,15 +1843,16 @@
             sourceY += this.spritePos.y;
 
             this.canvasCtx.save();
+            
 
-            if (opt_highScore) {
-                // Left of the current score.
-                var highScoreX = this.x - (this.maxScoreUnits * 2) *
-                    DistanceMeter.dimensions.WIDTH;
-                this.canvasCtx.translate(highScoreX, this.y);
-            } else {
-                this.canvasCtx.translate(this.x, this.y);
-            }
+            // if (opt_highScore) {
+            //     // Left of the current score.
+            //     var highScoreX = this.x - (this.maxScoreUnits * 2) *
+            //         DistanceMeter.dimensions.WIDTH;
+            //     this.canvasCtx.translate(highScoreX, this.y);
+            // } else {
+            //     this.canvasCtx.translate(this.x, this.y);
+            // }
 
             // this.canvasCtx.drawImage(this.image, sourceX, sourceY,
             //     sourceWidth, sourceHeight,
@@ -1848,7 +1860,10 @@
             //     targetWidth, targetHeight
             // );
 
-            this.canvasCtx.restore();
+            // this.canvasCtx.restore();
+            // this.canvasCtx.font = "24px Pixel";
+            // this.canvasCtx.fillStyle = '#535353';
+            // this.canvasCtx.fillText('HI ' + this.distanceMeterScore++, 500, 30);
         },
 
         /**
@@ -1920,6 +1935,8 @@
                     this.draw(i, parseInt(this.digits[i]));
                 }
             }
+            
+            this.draw();
 
             this.drawHighScore();
         },
@@ -2150,6 +2167,9 @@
                 this.dimensions.WIDTH,
                 this.dimensions.HEIGHT);
         },
+        
+        
+        
 
         /**
          * Update the x position of an indivdual piece of the line.
