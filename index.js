@@ -107,8 +107,8 @@
         INVERT_FADE_DURATION: 12000,
         INVERT_DISTANCE: 700,
         MAX_CLOUDS: 6,
-        MAX_OBSTACLE_LENGTH: 1,
-        MAX_OBSTACLE_DUPLICATION: 3,
+        MAX_OBSTACLE_LENGTH: 3,
+        MAX_OBSTACLE_DUPLICATION: 7,
         MAX_SPEED: 13,
         MIN_JUMP_HEIGHT: 60,
         MOBILE_SPEED_COEFFICIENT: 1.2,
@@ -152,6 +152,7 @@
         LDPI: {
             CACTUS_LARGE: { x: 269, y:60 },
             CACTUS_SMALL: { x: 168, y: 47 },
+            BALL: {x:168, y: 0},
             CLOUD: { x: 0, y: 0 },
             HORIZON: { x: 2, y: 54 },
             MOON: { x: 484, y: 2 },
@@ -1184,7 +1185,7 @@
      * Coefficient for calculating the maximum gap.
      * @const
      */
-    Obstacle.MAX_GAP_COEFFICIENT = 3;
+    Obstacle.MAX_GAP_COEFFICIENT = 1;
 
     /**
      * Maximum obstacle grouping count.
@@ -1348,8 +1349,8 @@
     Obstacle.types = [
         {
             type: 'CACTUS_SMALL',
-            width: 40,
-            height: 35,
+            width: 65,
+            height: 40,
             yPos: 245,
             multipleSpeed: 4,
             minGap: 30,
@@ -1359,6 +1360,21 @@
                 new CollisionBox(4, 0, 6, 34),
                 new CollisionBox(10, 4, 7, 14)
             ]
+        },
+        {
+            type: 'BALL',
+            width: 65,
+            height: 40,
+            yPos: [220, 180],
+            multipleSpeed: 4,
+            minGap: 30,
+            minSpeed: 0,
+            collisionBoxes: [
+                new CollisionBox(0, 7, 5, 27),
+                new CollisionBox(4, 0, 6, 34),
+                new CollisionBox(10, 4, 7, 14)
+            ],
+            speedOffset: 1.4
         },
         {
             type: 'CACTUS_LARGE',
@@ -1384,7 +1400,7 @@
             yPos: [170, 240], // Variable height.
             yPosMobile: [100, 50], // Variable height mobile.
             multipleSpeed: 999,
-            minSpeed: 8.5,
+            minSpeed: 6,
             minGap: 150,
             collisionBoxes: [
                 new CollisionBox(15, 15, 16, 5),
@@ -2134,8 +2150,8 @@
      */
     HorizonLine.dimensions = {
         WIDTH: 732,
-        HEIGHT: 300,
-        YPOS: 247
+        HEIGHT: 700,
+        YPOS: 0
     };
 
 
@@ -2175,8 +2191,8 @@
         draw: function () {
             this.canvasCtx.drawImage(Runner.groundSprite,
                 0,
-                142,
-                732,
+                0,
+                this.dimensions.WIDTH,
                 this.dimensions.HEIGHT,
                 this.xPos[0],
                 this.yPos - 20,
@@ -2185,8 +2201,8 @@
 
             this.canvasCtx.drawImage(Runner.groundSprite,
                 0,
-                142,
-                732,
+                0,
+                this.dimensions.WIDTH,
                 this.dimensions.HEIGHT,
                 this.xPos[1],
                 this.yPos - 20,

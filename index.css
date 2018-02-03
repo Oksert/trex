@@ -61,17 +61,23 @@ dialog {
 .modalBox__image-link {
   width: 30px;
   height: 30px;
+  top: 42px;
+  display: inline-block;
 }
 .modalBox__image-link_fb {
   position: relative;
-    top: 42px;
-    left: 61px;
+  left: 96px;
    
 }
 .modalBox__image-link_vk {
   position: relative;
   top: 42px;
-  left: 61px;
+  left: 106px;
+}
+.modalBox__image-link_tw {
+  position: relative;
+  top: 42px;
+  left: 116px;
 }
 .offline .runner-canvas {
   height: 300px;
